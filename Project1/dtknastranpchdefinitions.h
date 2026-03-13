@@ -11,6 +11,9 @@ enum class Component {
     T1_MAG, T1_PHASE, T1_REAL, T1_IMAG,
     T2_MAG, T2_PHASE, T2_REAL, T2_IMAG,
     T3_MAG, T3_PHASE, T3_REAL, T3_IMAG,
+    R1_MAG, R1_PHASE, R1_REAL, R1_IMAG,
+    R2_MAG, R2_PHASE, R2_REAL, R2_IMAG,
+    R3_MAG, R3_PHASE, R3_REAL, R3_IMAG,
     // 应力/应变分量 (SX, SY, SZ, TXY, TYZ, TZX)
     SX, SY, SZ, TXY, TYZ, TZX,
     P1, P2, P3, VON_MISES,
