@@ -30,9 +30,7 @@ int main() {
     PchParser parser(store);
 
     // 2. 指定 PCH 文件路径进行解析
-    std::string pchPath = "test_data.pch";
-
-    std::cout << "--- Starting Parse: " << pchPath << " ---" << std::endl;
+    std::string pchPath = "K11_TB_mode_20180123.pch";
 
     if (!parser.parse(pchPath)) {
         std::cerr << "Failed to open or parse PCH file!" << std::endl;

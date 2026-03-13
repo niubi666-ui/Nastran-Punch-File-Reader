@@ -20,5 +20,8 @@ private:
     int m_currentElementType = 0;
     std::string m_currentCategory;
     double m_currentXVal = 0.0;
+
+    bool m_isComplex = false;    // 当前块是否为复数 (REAL 为 false, COMPLEX 为 true)
+    bool m_isMagPhase = false;   // 若为复数，是 Magnitude/Phase (true) 还是 Real/Imaginary (false)
 };
 #endif

@@ -12,6 +12,6 @@ struct ElementLayout {
 
 class PchMapping {
 public:
-    ElementLayout getLayout(int elementType, const std::string& category);
+    ElementLayout getLayout(int elementType, const std::string& category,bool isComplex,bool isMagPhase);
 };
 #endif

@@ -7,6 +7,10 @@ enum class Component {
     NONE = 0,
     // 基础位移/加速度分量
     T1, T2, T3, R1, R2, R3,
+    //幅值相位
+    T1_MAG, T1_PHASE, T1_REAL, T1_IMAG,
+    T2_MAG, T2_PHASE, T2_REAL, T2_IMAG,
+    T3_MAG, T3_PHASE, T3_REAL, T3_IMAG,
     // 应力/应变分量 (SX, SY, SZ, TXY, TYZ, TZX)
     SX, SY, SZ, TXY, TYZ, TZX,
     P1, P2, P3, VON_MISES,

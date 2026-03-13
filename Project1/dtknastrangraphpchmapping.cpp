@@ -1,6 +1,6 @@
 #include "dtknastrangraphpchmapping.h"
 
-ElementLayout PchMapping::getLayout(int elementType, const std::string& cat) {
+ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool isComplex,bool isMagPhase) {
     ElementLayout layout;
     if (cat == "STRAIN" || cat == "STRESS") {
         if (elementType == 82) { // QUADR
@@ -22,12 +22,17 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat) {
         layout.wordToInfo[2] = { Component::STRAIN_ENERGY, LocationType::SINGLE };
         layout.wordToInfo[3] = { Component::ENERGY_PERCENT, LocationType::SINGLE };
     }
-    else if (cat == "DISPLACEMENT") {
-        layout.repeatCount = 1;
-        layout.wordsPerPoint = 8;
-        layout.wordToInfo[3] = { Component::T1, LocationType::SINGLE };
-        layout.wordToInfo[4] = { Component::T2, LocationType::SINGLE };
-        layout.wordToInfo[5] = { Component::T3, LocationType::SINGLE };
+    if (cat == "DISPLACEMENT" && isComplex) {
+        layout.wordsPerPoint = 14; // ID + Type + 6¸ö·ÖÁ¿*2 = 14
+        if (isMagPhase) {
+            layout.wordToInfo[3] = { Component::T1_MAG, LocationType::SINGLE };
+            layout.wordToInfo[4] = { Component::T1_PHASE, LocationType::SINGLE };
+            // ... T2_MAG, T2_PHASE ...
+        }
+        else {
+            layout.wordToInfo[3] = { Component::T1_REAL, LocationType::SINGLE };
+            layout.wordToInfo[4] = { Component::T1_IMAG, LocationType::SINGLE };
+        }
     }
     return layout;
 }
