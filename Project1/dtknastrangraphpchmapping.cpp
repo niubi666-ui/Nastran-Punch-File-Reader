@@ -22,7 +22,7 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool
         layout.wordToInfo[2] = { Component::STRAIN_ENERGY, LocationType::SINGLE };
         layout.wordToInfo[3] = { Component::ENERGY_PERCENT, LocationType::SINGLE };
     }
-    if (cat == "DISPLACEMENT" || cat == "VELOCITY") {
+    if (cat == "DISPLACEMENT" || cat == "VELOCITY" || cat == "ACCELERATION") {
         layout.repeatCount = 1;
 
         if (!isComplex) {
@@ -53,11 +53,11 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool
             layout.wordToInfo[9] = { Component::R1_MAG,   LocationType::SINGLE };
             layout.wordToInfo[10] = { Component::R1_PHASE, LocationType::SINGLE };
             // R2
-            layout.wordToInfo[9] = { Component::R2_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[10] = { Component::R2_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[11] = { Component::R2_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[12] = { Component::R2_PHASE, LocationType::SINGLE };
             // R3
-            layout.wordToInfo[9] = { Component::R3_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[10] = { Component::R3_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[13] = { Component::R3_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[14] = { Component::R3_PHASE, LocationType::SINGLE };
         }
         else {
             // --- 模式 3: 实部 & 虚部 (REAL-IMAGINARY) ---

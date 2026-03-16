@@ -14,7 +14,7 @@ public:
         std::vector<double>& outX, std::vector<double>& outY);
 
     std::map<int, std::set<ResultModule>> m_uiNavigationTree;
-
+    
 private:
     std::vector<PchEntry> m_allEntries;
     bool m_isSorted = false;

@@ -57,7 +57,7 @@ int main() {
     std::vector<double> yCoords;
 
     // ²ÎÊý£ºSubcase, ElementType, ParentID, GridID, Location, Component
-    store.getCurveData(1, 82, 24, 0, LocationType::Z1, Component::SX, xCoords, yCoords);
+    store.getCurveData(1, 0, 24, 0, LocationType::Z1, Component::SX, xCoords, yCoords);
 
     if (xCoords.empty()) {
         std::cout << "No data found for the specified criteria." << std::endl;
