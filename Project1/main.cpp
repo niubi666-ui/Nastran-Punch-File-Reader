@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <windows.h>
 #include <shellapi.h>
+#include <commdlg.h>
 #include "dtknastrangraphpchdatastore.h"
 #include "dtknastrangraphpchparser.h"
 
@@ -129,6 +130,25 @@ void plot(std::vector<double> xCoords, std::vector<double> yCoords)
     }
 }
 
+std::string openPchFileDialog()
+{
+    char fileName[MAX_PATH] = { 0 };
+    OPENFILENAMEA ofn;
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = "pch Files\0*.pch\0All Files\0*.*\0";
+    ofn.lpstrFile = fileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrTitle = "Select pch file";
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER;
+
+    if (GetOpenFileNameA(&ofn)) {
+        return std::string(fileName);
+    }
+    return std::string();
+}
+
 int main()
 {
     // 1. 初始化数据池和解析器
@@ -136,35 +156,23 @@ int main()
     PchParser parser(store);
 
     // 2. 指定 PCH 文件路径进行解析
-    std::string pchPath = "K11_TB_mode_20180123.pch";
+    //std::string pchPath = "pch_test/K11_TB_IPI_20180122.pch";
+    std::string pchPath = openPchFileDialog();
+    if (pchPath.empty()) {
+        std::cerr << "No file selected. Exiting." << std::endl;
+        return -1;
+    }
 
     if (!parser.parse(pchPath)) {
         std::cerr << "Failed to open or parse PCH file!" << std::endl;
         return -1;
     }
 
-    // 3. 模拟 UI 树状结构的遍历展示
-    std::cout << "\n--- UI Navigation Tree Structure ---" << std::endl;
-    for (auto const& subcasePair : store.m_uiNavigationTree)
-    {
-        int subID = subcasePair.first;
-        std::cout << "Subcase: " << subID << std::endl;
-
-        for (auto const& module : subcasePair.second)
-        {
-            std::cout << "  |- Category: " << module.category
-                << " | Element Type: " << module.elementType << std::endl;
-        }
-    }
-
-    // 4. 模拟用户点击：假设用户选择了 Subcase 1, Category "STRAIN", ElementType 82
-    // 并想提取 Element ID 为 24 的 SX 分量 (Z1层)
-    std::cout << "\n--- Fetching Curve Data ---" << std::endl;
-
     std::vector<double> xCoords;
     std::vector<double> yCoords;
 
     // 参数：Subcase, ElementType, ParentID, GridID, Location, Component
+	// 把你想要绘制曲线数据的维度信息填在这里，然后会绘制出曲线图。注意要和你解析的文件中的数据维度匹配，否则可能找不到数据。
     store.getCurveData(1, 0, 7012, 0, LocationType::SINGLE, Component::T1_MAG, xCoords, yCoords);
 
     if (xCoords.empty())
