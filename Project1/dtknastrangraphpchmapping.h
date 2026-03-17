@@ -25,7 +25,7 @@
 
 * wordsPerPoint (每个点占用的总字数)：
 代表一个完整的物理实体（如一个单元、一个节点）在文件中占用的“格子”总数。这决定了我们要连续读取多少个 16 字符宽的字段。
-上面的数据中wordPerPoint = 14，因为
+上面的数据中wordPerPoint = 12，因为
 Word 1: Frequency (2.0000E+01)
 
 Word 2: 标识符 (G)
@@ -37,6 +37,9 @@ Word 6-8: R1, R2, R3 的幅值
 Word 9-11: T1, T2, T3 的相位
 
 Word 12-14: R1, R2, R3 的相位
+
+但是我们只求实际的物理数据，所以在解析时我们会跳过 Word 2（标识符 G）和 Word 1（频率或-CONT-或节点ID），直接从 Word 3 开始处理物理数据。
+频率在读取数据之前存入
 */
 
 struct ElementLayout {

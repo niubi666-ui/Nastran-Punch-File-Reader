@@ -45,50 +45,38 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool
         else if (isMagPhase)
         {
             // --- 模式 2: 幅值 & 相位
-            // 此时 Words 总数翻倍，因为 T1 占 2 个 Word，T2 占 2 个...
             layout.wordsPerPoint = 12;
 
-            // T1
             layout.wordToInfo[3] = { Component::T1_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[4] = { Component::T1_PHASE, LocationType::SINGLE };
-            // T2
-            layout.wordToInfo[5] = { Component::T2_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[6] = { Component::T2_PHASE, LocationType::SINGLE };
-            // T3
-            layout.wordToInfo[7] = { Component::T3_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[8] = { Component::T3_PHASE, LocationType::SINGLE };
-            // R1
-            layout.wordToInfo[9] = { Component::R1_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[10] = { Component::R1_PHASE, LocationType::SINGLE };
-            // R2
-            layout.wordToInfo[11] = { Component::R2_MAG,   LocationType::SINGLE };
-            layout.wordToInfo[12] = { Component::R2_PHASE, LocationType::SINGLE };
-            // R3
-            layout.wordToInfo[13] = { Component::R3_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[4] = { Component::T2_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[5] = { Component::T3_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[6] = { Component::R1_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[7] = { Component::R2_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[8] = { Component::R3_MAG,   LocationType::SINGLE };
+            layout.wordToInfo[9] = { Component::T1_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[10] = { Component::T2_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[11] = { Component::T3_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[12] = { Component::R1_PHASE, LocationType::SINGLE };
+            layout.wordToInfo[13] = { Component::R2_PHASE, LocationType::SINGLE };
             layout.wordToInfo[14] = { Component::R3_PHASE, LocationType::SINGLE };
         }
         else
         {
             // --- 模式 3: 实部 & 虚部 (REAL-IMAGINARY) ---
             layout.wordsPerPoint = 12;
-            // T1
+
             layout.wordToInfo[3] = { Component::T1_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[4] = { Component::T1_IMAG, LocationType::SINGLE };
-            // T2
-            layout.wordToInfo[5] = { Component::T2_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[6] = { Component::T2_IMAG, LocationType::SINGLE };
-            // T3
-            layout.wordToInfo[7] = { Component::T3_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[8] = { Component::T3_IMAG, LocationType::SINGLE };
-            // R1
-            layout.wordToInfo[9] = { Component::R1_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[10] = { Component::R1_IMAG, LocationType::SINGLE };
-            // R2
-            layout.wordToInfo[11] = { Component::R2_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[12] = { Component::R2_IMAG, LocationType::SINGLE };
-            // R3
-            layout.wordToInfo[13] = { Component::R3_REAL,   LocationType::SINGLE };
-            layout.wordToInfo[14] = { Component::R3_IMAG, LocationType::SINGLE };
+            layout.wordToInfo[4] = { Component::T2_REAL,   LocationType::SINGLE };
+            layout.wordToInfo[5] = { Component::T3_REAL,   LocationType::SINGLE };
+            layout.wordToInfo[6] = { Component::R1_REAL,   LocationType::SINGLE };
+            layout.wordToInfo[7] = { Component::R2_REAL,   LocationType::SINGLE };
+            layout.wordToInfo[8] = { Component::R3_REAL,   LocationType::SINGLE };
+            layout.wordToInfo[9] = { Component::T1_IMAG,   LocationType::SINGLE };
+            layout.wordToInfo[10] = { Component::T2_IMAG,   LocationType::SINGLE };
+            layout.wordToInfo[11] = { Component::T3_IMAG,   LocationType::SINGLE };
+            layout.wordToInfo[12] = { Component::R1_IMAG,   LocationType::SINGLE };
+            layout.wordToInfo[13] = { Component::R2_IMAG,   LocationType::SINGLE };
+            layout.wordToInfo[14] = { Component::R3_IMAG,   LocationType::SINGLE };
         }
     }
     return layout;

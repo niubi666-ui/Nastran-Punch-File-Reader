@@ -60,7 +60,7 @@ int main()
     std::vector<double> yCoords;
 
     // ²ÎÊý£ºSubcase, ElementType, ParentID, GridID, Location, Component
-    store.getCurveData(1, 0, 24, 0, LocationType::Z1, Component::SX, xCoords, yCoords);
+    store.getCurveData(2, 0, 7012, 0, LocationType::SINGLE, Component::T1_PHASE, xCoords, yCoords);
 
     if (xCoords.empty())
     {

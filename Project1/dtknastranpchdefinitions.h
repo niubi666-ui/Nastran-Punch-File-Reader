@@ -32,6 +32,7 @@ enum class LocationType {
 // 原子数据条目
 struct PchEntry {
     int subcase;
+    int eType;
     int parentID;   // Element 或 Node ID
     int gridID;     // 关联的 Grid ID (如果没有则为0)
     LocationType loc;

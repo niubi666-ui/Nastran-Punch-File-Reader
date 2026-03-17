@@ -126,7 +126,9 @@ void PchParser::parseElementData(std::ifstream& file, const std::string& firstLi
                 {
                     PchEntry entry;
                     entry.subcase = m_currentSubcase;
+                    entry.eType = m_currentElementType;
                     entry.parentID = m_currentParentID;
+                    entry.gridID = 0;
                     entry.xVal = (float)m_currentXVal; // 使用刚更新的频率
                     entry.yVal = (float)m_utils.safeStod(valStr);
                     entry.comp = layout.wordToInfo.at(targetWordIdx).comp;
