@@ -24,7 +24,8 @@ std::string translateLoc(LocationType loc) {
     }
 }
 
-int main() {
+int main()
+{
     // 1. 初始化数据池和解析器
     PchDataStore store;
     PchParser parser(store);
@@ -39,11 +40,13 @@ int main() {
 
     // 3. 模拟 UI 树状结构的遍历展示
     std::cout << "\n--- UI Navigation Tree Structure ---" << std::endl;
-    for (auto const& subcasePair : store.m_uiNavigationTree) {
+    for (auto const& subcasePair : store.m_uiNavigationTree)
+    {
         int subID = subcasePair.first;
         std::cout << "Subcase: " << subID << std::endl;
 
-        for (auto const& module : subcasePair.second) {
+        for (auto const& module : subcasePair.second)
+        {
             std::cout << "  |- Category: " << module.category
                 << " | Element Type: " << module.elementType << std::endl;
         }
@@ -59,12 +62,15 @@ int main() {
     // 参数：Subcase, ElementType, ParentID, GridID, Location, Component
     store.getCurveData(1, 0, 24, 0, LocationType::Z1, Component::SX, xCoords, yCoords);
 
-    if (xCoords.empty()) {
+    if (xCoords.empty())
+    {
         std::cout << "No data found for the specified criteria." << std::endl;
     }
-    else {
+    else
+    {
         std::cout << "Found " << xCoords.size() << " points for Element 24 SX (Z1):" << std::endl;
-        for (size_t i = 0; i < xCoords.size(); ++i) {
+        for (size_t i = 0; i < xCoords.size(); ++i)
+        {
             std::cout << "  X: " << xCoords[i] << " \t Y: " << yCoords[i] << std::endl;
         }
     }
