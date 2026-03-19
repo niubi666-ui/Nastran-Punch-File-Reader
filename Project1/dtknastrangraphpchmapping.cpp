@@ -21,8 +21,12 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool
         }
         else if (elementType == 39)
         {
-            // Word 5 是 GRID ID，由解析器在 parseSinglePoint 中通过 getField(line, 2) 提取
+            layout.repeatCount = 5;
+            layout.wordsPerPoint = 21;
+            layout.dataStartWord = 5;
+            layout.wordGridID = 5;
 
+            // Word 5 是 GRID ID，由解析器在 parseSinglePoint 中通过 getField(line, 2) 提取
             layout.wordToInfo[6]  = { Component::SX,    LocationType::SINGLE }; // Normal-X
             layout.wordToInfo[7]  = { Component::SXY,   LocationType::SINGLE }; // Shear-XY
             layout.wordToInfo[8]  = { Component::P1,    LocationType::SINGLE }; // First Principal
@@ -61,6 +65,7 @@ ElementLayout PchMapping::getLayout(int elementType, const std::string& cat,bool
     if (cat == "DISPLACEMENT" || cat == "VELOCITY" || cat == "ACCELERATION")
     {
         layout.repeatCount = 1;
+        layout.dataStartWord = 3;
 
         if (!isComplex)
         {

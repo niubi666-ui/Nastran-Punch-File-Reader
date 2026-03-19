@@ -173,7 +173,7 @@ int main()
 
     // 参数：Subcase, ElementType, ParentID, GridID, Location, Component
 	// 把你想要绘制曲线数据的维度信息填在这里，然后会绘制出曲线图。注意要和你解析的文件中的数据维度匹配，否则可能找不到数据。
-    store.getCurveData(1, 0, 7012, 0, LocationType::SINGLE, Component::T1_MAG, xCoords, yCoords);
+    store.getCurveData(1, 0, 3261, 0, LocationType::CENTER, Component::T1, xCoords, yCoords);
 
     if (xCoords.empty())
     {

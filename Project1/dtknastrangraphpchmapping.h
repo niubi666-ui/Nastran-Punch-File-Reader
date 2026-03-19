@@ -45,6 +45,8 @@ Word 12-14: R1, R2, R3 的相位
 struct ElementLayout {
     int repeatCount = 0;
     int wordsPerPoint = 0;
+    int dataStartWord = 0;
+    int wordGridID = 0;
     struct Info { Component comp; LocationType loc; };
     std::map<int, Info> wordToInfo;//当前读到的第i个word，它的物理意义是什么？比如读到第3个word，它代表了tz的幅值
 };

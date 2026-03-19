@@ -15,28 +15,25 @@ double PchUtils::safeStod(const std::string& str) {
 std::string PchUtils::getField(const std::string& line, int wordIndex)
 {
     int start = 0;
-    int width = 16;
+    int width = 0;
 
-    // 针对 PCH 特殊列宽的硬核对齐
-    if (wordIndex == 0)
-    {
-        start = 0; width = 16;  // Word 1: 频率或 ID
-    }
-    else if (wordIndex == 1)
-    {
-        start = 16; width = 7;  // Word 2: G 字符所在区域
-    }
-    else
-    {
-        // 从 Word 3 开始，起始点固定在 23，每字段 16 位
-        start = 23 + (wordIndex - 2) * 16;
-        width = 16;
-    }
+    // 期望列（0-based 索引）:
+    // field0: cols 0..15  (width 16)
+    // field1: cols 16..21 (width 6)
+    // field2: cols 22..35 (width 14)
+    // field3: cols 40..53 (width 14)
+    // field4: cols 59..72 (width 14)
+    if (wordIndex == 0) { start = 0;  width = 16; }
+    else if (wordIndex == 1) { start = 16; width = 6; }
+    else if (wordIndex == 2) { start = 22; width = 14; }
+    else if (wordIndex == 3) { start = 40; width = 14; }
+    else if (wordIndex == 4) { start = 59; width = 14; }
+    else { return std::string(); }
 
-    if (start >= (int)line.length()) return "";
-
-    int actualWidth = std::min(width, (int)(line.length() - start));
-    std::string s = line.substr(start, actualWidth);
+    if (start >= static_cast<int>(line.length())) return "";
+    int avail = static_cast<int>(line.length()) - start;
+    int useWidth = std::min(width, avail);
+    std::string s = line.substr(start, useWidth);
 
     // 清理空格
     size_t first = s.find_first_not_of(' ');

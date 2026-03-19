@@ -44,7 +44,7 @@ bool PchParser::parse(const std::string& filePath)
         }
 
         // --- 3. 识别 Sort 模式与元数据 ---
-        else if (line.find("$FREQUENCY =") != std::string::npos || line.find("$TIME STEP =") != std::string::npos) {
+        else if (line.find("$FREQUENCY =") != std::string::npos || line.find("$TIME =") != std::string::npos) {
             m_currentSortMode = SortMode::SORT_1;
             m_currentXVal = m_utils.safeStod(line.substr(line.find("=") + 1));
         }
@@ -53,28 +53,15 @@ bool PchParser::parse(const std::string& filePath)
             m_currentParentID = std::stoi(line.substr(line.find("=") + 1));
             m_currentElementType = 0;
         }
-        else if (line.find("$ELEMENT ID =") != std::string::npos) {
-            m_currentSortMode = SortMode::SORT_2;
-            m_currentParentID = std::stoi(line.substr(line.find("=") + 1));
-            // ELEMENT ID 后面通常会跟着 ELEMENT TYPE 标题，我们在下面处理
-        }
         else if (line.find("ELEMENT TYPE =") != std::string::npos) {
             m_currentElementType = std::stoi(line.substr(line.find("=") + 1));
         }
         else if (line.find("$") != std::string::npos) {
             continue;
         }
-
-        // --- 4. 关键：识别并解析数据行 ---
-        // 如果这行开头是数字，说明这就是我们要的数据。
-        // 我们不再在看到标题时调用 processBlock，而是在看到数据时调用解析函数。
-        else
+        if (file.peek() != EOF && file.peek() != '$')
         {
-            ElementLayout layout = m_mapping.getLayout(m_currentElementType, m_currentCategory, m_isComplex, m_isMagPhase);
-            if (layout.wordsPerPoint > 0) {
-                // 直接调用解析函数处理这一块（包括后续的 -CONT-）
-                parseElementData(file, line, layout);
-            }
+            processBlock(file);
         }
     }
     m_store.finalize();
@@ -83,14 +70,72 @@ bool PchParser::parse(const std::string& filePath)
 
 void PchParser::processBlock(std::ifstream& file)
 {
-    m_store.registerMetadata(m_currentSubcase, m_currentCategory, m_currentElementType);
-    ElementLayout layout = m_mapping.getLayout(m_currentElementType, m_currentCategory,m_isComplex,m_isMagPhase);
-    std::string line;
-    // repeatCount 代表有多少个点（或单元）
-    for (int i = 0; i < layout.repeatCount; ++i)
+    ElementLayout layout = m_mapping.getLayout(m_currentElementType, m_currentCategory, m_isComplex, m_isMagPhase);
+
+    while (file.good())
     {
-        if (!std::getline(file, line) || line.empty()) break;
-        parseElementData(file, line, layout);
+        if (file.peek() == '$')
+        {
+            // 遇见标题行，说明当前 Block 彻底结束，交还给 parse()
+            break;
+        }
+
+        for (int i = 0; i < layout.repeatCount; ++i)
+        {
+            std::string line;
+            if (!std::getline(file, line) || line.empty())
+            {
+                break;
+            }
+
+            // 提取 Word 1
+            std::string w1;
+            if (i == 0)
+            {
+                w1 = m_utils.getField(line, 0);
+            }
+            else
+            {
+                w1 = m_utils.getField(line, 2);
+            }
+
+            if (m_currentSortMode == SortMode::SORT_1 && i == 0)
+            {
+                // SORT1: Word 1 是 ID，X 已经在标题行读过了
+                if (!w1.empty())
+                {
+                    m_currentParentID = std::stoi(w1);
+                }
+                m_currentGridID = 0; // 节点默认为 0
+            }
+            else // SortMode::SORT_2
+            {
+                // SORT2: Word 1 是频率 (X)，ParentID 已经在标题行读过了
+                if (!w1.empty())
+                {
+                    m_currentXVal = m_utils.safeStod(w1);
+                }
+                m_currentGridID = 0;
+            }
+
+            // 针对单元结果的特殊逻辑：如果 i=0 且是单元，可能需要处理 ParentID 更新和换行
+            if (m_currentElementType != 0 && i == 0)
+            {
+                if (m_currentSortMode == SortMode::SORT_1)
+                {
+                    // 单元 SORT1 下，Word 1 是 ElementID
+                    m_currentParentID = std::stoi(w1);
+
+                    // 如果数据在下一行开始，则换行
+                    if (layout.dataStartWord >= 5)
+                    {
+                        if (!std::getline(file, line)) break;
+                    }
+                }
+            }
+
+            parseElementData(file, line, layout);
+        }
     }
 }
 
@@ -99,50 +144,53 @@ void PchParser::parseElementData(std::ifstream& file, const std::string& firstLi
     std::string currentLine = firstLine;
     int wordsHandled = 0;
 
-    // 循环直到填满该点所需的所有 wordsPerPoint
     while (wordsHandled < layout.wordsPerPoint)
     {
-        // --- 1. 处理 Word 1：获取频率 ---
-        std::string w1 = m_utils.getField(currentLine, 0);
-        if (w1 != "-CONT-" && !w1.empty())
-        {
-            // 如果不是续行，更新当前频率（解决频率丢失问题）
-            m_currentXVal = m_utils.safeStod(w1);
-        }
-
-        // --- 2. 处理物理数据 (Word 3, 4, 5) ---
-        // 每一行最多提供 3 个数据字段
         for (int f = 0; f < 3 && wordsHandled < layout.wordsPerPoint; ++f)
         {
-            // 数据位在 getField 的索引 2, 3, 4 (即 Word 3, 4, 5)
+            // 1. 计算当前槽位对应的逻辑 Word 编号
+            int currentWordIdx = layout.dataStartWord + wordsHandled;
+
+            // 2. 物理提取数据 (getField 2, 3, 4 对应 Word 3, 4, 5)
             std::string valStr = m_utils.getField(currentLine, f + 2);
 
-            if (!valStr.empty())
+            // 3. 判定是否为 Grid ID 位
+            if (currentWordIdx == layout.wordGridID)
             {
-                // targetWordIdx 对应 Mapping 表中的 Word 3, 4, 5...
-                int targetWordIdx = wordsHandled + 3;
-
-                if (layout.wordToInfo.count(targetWordIdx))
+                // 如果读取到的是 Word 5，更新当前的 Grid ID
+                if (!valStr.empty())
                 {
-                    PchEntry entry;
-                    entry.subcase = m_currentSubcase;
-                    entry.eType = m_currentElementType;
-                    entry.parentID = m_currentParentID;
-                    entry.gridID = 0;
-                    entry.xVal = (float)m_currentXVal; // 使用刚更新的频率
-                    entry.yVal = (float)m_utils.safeStod(valStr);
-                    entry.comp = layout.wordToInfo.at(targetWordIdx).comp;
-                    entry.loc = layout.wordToInfo.at(targetWordIdx).loc;
-                    m_store.addEntry(entry);
+                    m_currentGridID = std::stoi(valStr);
                 }
             }
+            // 4. 判定是否为物理分量位
+            else if (layout.wordToInfo.count(currentWordIdx))
+            {
+                PchEntry entry;
+                entry.subcase = m_currentSubcase;
+                entry.eType = m_currentElementType;
+                entry.parentID = m_currentParentID;
+                entry.gridID = m_currentGridID;
+                entry.xVal = (float)m_currentXVal;
+                entry.yVal = (float)m_utils.safeStod(valStr);
+
+                const auto& info = layout.wordToInfo.at(currentWordIdx);
+                entry.comp = info.comp;
+                entry.loc = (m_currentGridID == 0) ? LocationType::CENTER : LocationType::CORNER;
+
+                m_store.addEntry(entry);
+            }
+
             wordsHandled++;
         }
 
-        // --- 3. 读取续行 ---
+        // 5. 换行逻辑：如果没处理完，读下一行
         if (wordsHandled < layout.wordsPerPoint)
         {
-            if (!std::getline(file, currentLine)) break;
+            if (!std::getline(file, currentLine))
+            {
+                break;
+            }
         }
     }
 }
