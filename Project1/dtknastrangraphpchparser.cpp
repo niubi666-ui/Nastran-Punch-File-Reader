@@ -158,7 +158,6 @@ void PchParser::parseElementData(std::ifstream& file, const std::string& firstLi
             // 3. 判定是否为 Grid ID 位
             if (currentWordIdx == layout.wordGridID)
             {
-                // 如果读取到的是 Word 5，更新当前的 Grid ID
                 if (!valStr.empty())
                 {
                     m_currentGridID = std::stoi(valStr);
